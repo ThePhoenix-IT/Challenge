@@ -31,7 +31,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity" />
         <activity android:name=".FaceRecoActivity" />
-        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SignUpActivity"
+            android:parentActivityName=".StartScreenActivity"/>
         <activity android:name=".SignInActivity"></activity>
     </application>
 
