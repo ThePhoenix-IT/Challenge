@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
  */
 
 public interface IFaceAPI {
+    void addFace(String face_id, Bitmap imageBitmap);
     void faceDetection(Bitmap imageBitmap);
     void faceRecognition(Bitmap imageBitmap);
 }

@@ -2,7 +2,6 @@ package com.smartiot.hamzajguerim.challenge.app;
 
 import android.app.Application;
 
-import com.microsoft.cognitive.speakerrecognition.SpeakerIdentificationClient;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 

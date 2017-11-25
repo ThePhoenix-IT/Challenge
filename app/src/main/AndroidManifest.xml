@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
     <application
         android:name=".app.MyApplication"
         android:allowBackup="true"
@@ -22,9 +26,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".StartScreenActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".StartScreenActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity" />
+        <activity android:name=".FaceRecoActivity" />
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SignInActivity"></activity>
     </application>
 
 </manifest>
