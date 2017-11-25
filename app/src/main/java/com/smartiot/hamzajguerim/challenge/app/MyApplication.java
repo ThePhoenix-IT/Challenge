@@ -2,6 +2,7 @@ package com.smartiot.hamzajguerim.challenge.app;
 
 import android.app.Application;
 
+import com.microsoft.cognitive.speakerrecognition.SpeakerIdentificationClient;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 
@@ -13,7 +14,8 @@ import io.realm.RealmConfiguration;
  */
 
 public class MyApplication extends Application {
-    private final String SUBSCRIPTION_KEY = "";
+    private final String FACE_API_SUBSCRIPTION_KEY = "71bd7167190141efafc2a84dc6e15849";
+    private final String SPEAKER_API_SUBSCRIPTION_KEY = "6ddeebbff8ac419aa832843084838e92";
     private static FaceServiceClient faceServiceClient;
 
     public static FaceServiceClient getFaceServiceClient() {
@@ -31,8 +33,7 @@ public class MyApplication extends Application {
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(realmConfiguration);
-        faceServiceClient =
-                new FaceServiceRestClient(SUBSCRIPTION_KEY);
+        faceServiceClient = new FaceServiceRestClient(FACE_API_SUBSCRIPTION_KEY);
 
     }
 }
