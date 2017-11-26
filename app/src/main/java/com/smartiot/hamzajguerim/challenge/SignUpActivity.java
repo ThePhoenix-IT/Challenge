@@ -2,9 +2,12 @@ package com.smartiot.hamzajguerim.challenge;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -14,7 +17,8 @@ import static com.smartiot.hamzajguerim.challenge.StartScreenActivity.REQUEST_IM
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private Button btnAddFace;
+    // The URI of photo taken with camera
+    private Uri mUriPhotoTaken;
     private ImageButton imageBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,29 @@ public class SignUpActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             imageBtn.setImageBitmap(imageBitmap);
+        }
+    }
+
+    // Menu icons are inflated just as they were with actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.sign_up_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.save_registration:
+
+                Intent i = new Intent(SignUpActivity.this, AddFaceToPersonActivity.class);
+                i.putExtra("PersonId", "test");
+                //i.putExtra("ImageUriStr", mImageUriStr);
+                SignUpActivity.this.startActivity(i);
+                SignUpActivity.this.finish();
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

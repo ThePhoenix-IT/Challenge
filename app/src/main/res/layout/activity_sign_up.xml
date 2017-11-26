@@ -13,14 +13,38 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="Login"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="Password" />
+
         <ImageButton
             android:id="@+id/imageBtn"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="163dp"
+            android:layout_height="127dp"
+            android:layout_gravity="center_horizontal"
             android:baselineAligned="false"
             android:scaleType="fitCenter"
-            android:layout_gravity="center_horizontal"
-            app:srcCompat="@drawable/face"
-            />
+            app:srcCompat="@drawable/face" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="User Face" />
     </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>
