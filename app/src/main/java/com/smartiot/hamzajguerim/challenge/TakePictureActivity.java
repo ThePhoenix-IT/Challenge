@@ -67,19 +67,14 @@ public class TakePictureActivity extends AppCompatActivity {
         }
     }
 
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     // When the button of "Take a Photo with Camera" is pressed.
     public void takePhoto() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(intent.resolveActivity(getPackageManager()) != null) {
             // Save the photo taken to a temporary file.
-            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            try {
-                File file = File.createTempFile("IMG_", ".jpg", storageDir);
-                mUriPhotoTaken = Uri.fromFile(file);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mUriPhotoTaken);
-                startActivityForResult(intent, REQUEST_TAKE_PHOTO);
-            } catch (IOException e) {
-                setInfo(e.getMessage());
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }

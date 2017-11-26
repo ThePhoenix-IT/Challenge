@@ -40,7 +40,7 @@ public class FaceRecoActivity extends AppCompatActivity {
         protected VerifyResult doInBackground(Void... params) {
             // Get an instance of face service client to detect faces in image.
             FaceServiceClient faceServiceClient = MyApplication.getFaceServiceClient();
-            try{
+            try {
                 publishProgress("Verifying...");
 
                 // Start verification.
@@ -49,7 +49,7 @@ public class FaceRecoActivity extends AppCompatActivity {
                         mPersonId);     /* The person ID to verify */
             }  catch (Exception e) {
                 publishProgress(e.getMessage());
-                Log.e("Excdeption: ", e.getMessage());
+                Log.e("Exception: ", e.getMessage());
                 return null;
             }
         }

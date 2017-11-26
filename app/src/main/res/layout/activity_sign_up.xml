@@ -13,16 +13,14 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/face" />
-
-        <Button
-            android:id="@+id/add_face"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Capture Face" />
+        <ImageButton
+            android:id="@+id/imageBtn"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:baselineAligned="false"
+            android:scaleType="fitCenter"
+            android:layout_gravity="center_horizontal"
+            app:srcCompat="@drawable/face"
+            />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
