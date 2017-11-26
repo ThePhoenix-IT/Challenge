@@ -164,7 +164,7 @@ public class AddFaceToPersonActivity extends AppCompatActivity {
         }
     }
 
-    String mPersonGroupId;
+    //String mPersonGroupId;
     String mPersonId;
     String mImageUriStr;
     Bitmap mBitmap;
@@ -180,7 +180,7 @@ public class AddFaceToPersonActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             mPersonId = bundle.getString("PersonId");
-            mPersonGroupId = bundle.getString("PersonGroupId");
+            //mPersonGroupId = bundle.getString("PersonGroupId");
             mImageUriStr = bundle.getString("ImageUriStr");
         }
 
@@ -193,7 +193,7 @@ public class AddFaceToPersonActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
 
         outState.putString("PersonId", mPersonId);
-        outState.putString("PersonGroupId", mPersonGroupId);
+        //outState.putString("PersonGroupId", mPersonGroupId);
         outState.putString("ImageUriStr", mImageUriStr);
     }
 
@@ -202,7 +202,7 @@ public class AddFaceToPersonActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
         mPersonId = savedInstanceState.getString("PersonId");
-        mPersonGroupId = savedInstanceState.getString("PersonGroupId");
+        //mPersonGroupId = savedInstanceState.getString("PersonGroupId");
         mImageUriStr = savedInstanceState.getString("ImageUriStr");
     }
 
