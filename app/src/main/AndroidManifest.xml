@@ -31,9 +31,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity" />
         <activity android:name=".FaceRecoActivity" />
-        <activity android:name=".SignUpActivity"
-            android:parentActivityName=".StartScreenActivity"/>
-        <activity android:name=".SignInActivity"></activity>
+        <activity
+            android:name=".SignUpActivity"
+            android:parentActivityName=".StartScreenActivity" />
+        <activity android:name=".SignInActivity" />
+        <activity android:name=".TakePictureActivity"></activity>
     </application>
 
 </manifest>

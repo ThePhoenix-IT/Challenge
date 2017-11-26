@@ -4,144 +4,259 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.contract.Face;
-import com.microsoft.projectoxford.face.contract.SimilarFace;
+import com.microsoft.projectoxford.face.contract.VerifyResult;
 import com.smartiot.hamzajguerim.challenge.app.MyApplication;
+import com.smartiot.hamzajguerim.challenge.biometric.ImageHelper;
 
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.UUID;
 
-import static com.smartiot.hamzajguerim.challenge.StartScreenActivity.REQUEST_IMAGE_CAPTURE;
 
 public class FaceRecoActivity extends AppCompatActivity {
 
-    private Bitmap imageBitmap;
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        dispatchTakePictureIntent();
-    }
+    // Background task for face verification.
+    private class VerificationTask extends AsyncTask<Void, String, VerifyResult> {
+        // The IDs of two face to verify.
+        private UUID mFaceId;
+        private UUID mPersonId;
+        private String mPersonGroupId;
 
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-
+        VerificationTask (UUID faceId, String personGroupId, UUID personId1) {
+            mFaceId = faceId;
+            mPersonGroupId = personGroupId;
+            mPersonId = personId1;
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            imageBitmap = (Bitmap) extras.get("data");
-        }
-    }
-    // Background task for finding personal similar faces.
-    private class FindPersonalSimilarFaceTask extends AsyncTask<UUID, String, SimilarFace[]> {
-        private boolean mSucceed = true;
 
         @Override
-        protected SimilarFace[] doInBackground(UUID... params) {
+        protected VerifyResult doInBackground(Void... params) {
             // Get an instance of face service client to detect faces in image.
             FaceServiceClient faceServiceClient = MyApplication.getFaceServiceClient();
-            Log.i("Request:", " Find matchPerson similar faces to " + params[0].toString() +
-                    " in " + (params.length - 1) + " face(s)");
-            try {
-                publishProgress("Finding Similar Faces...");
+            try{
+                publishProgress("Verifying...");
 
-                UUID[] faceIds = Arrays.copyOfRange(params, 1, params.length);
-                // Start find similar faces.
-                return faceServiceClient.findSimilar(
-                        params[0],  /* The target face ID */
-                        faceIds,    /*candidate faces */
-                        4 /*max number of candidate returned*/
-                );
-            } catch (Exception e) {
-                mSucceed = false;
+                // Start verification.
+                return faceServiceClient.verify(
+                        mFaceId,      /* The face ID to verify */
+                        mPersonId);     /* The person ID to verify */
+            }  catch (Exception e) {
                 publishProgress(e.getMessage());
-                Log.e("Exception", e.getMessage());
+                Log.e("Excdeption: ", e.getMessage());
                 return null;
             }
         }
 
         @Override
         protected void onPreExecute() {
-            mProgressDialog.show();
-        }
-        @Override
-        protected void onProgressUpdate(String... values) {
-            // Show the status of background find similar face task on screen.
-            setUiDuringBackgroundTask(values[0]);
+            progressDialog.show();
+            Log.v("Request: ", "Verifying face " + FaceRecoActivity.this.mFaceId + " and person " + mPersonId);
         }
 
         @Override
-        protected void onPostExecute(SimilarFace[] result) {
-            if (mSucceed) {
-                String resultString = "Found "
-                        + (result == null ? "0": result.length)
-                        + " matchPerson similar face" + ((result != null && result.length != 1)? "s": "");
-                Log.i("Response:"," Success. " + resultString);
-                Log.i("",resultString);
+        protected void onProgressUpdate(String... progress) {
+            progressDialog.setMessage(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(VerifyResult result) {
+            if (result != null) {
+                Log.v("Response:", " Success. Face " + FaceRecoActivity.this.mFaceId + " "
+                        + mPersonId + (result.isIdentical ? " " : " don't ")
+                        + "belong to person "+ FaceRecoActivity.this.mPersonId);
             }
 
             // Show the result on screen when verification is done.
-            setUiAfterFindPersonalSimilarFaces(result);
+            setUiAfterVerification(result);
         }
     }
 
-    void setUiAfterFindPersonalSimilarFaces(SimilarFace[] result) {
-        mProgressDialog.dismiss();
-    }
+    // Background task of face detection.
+    private class DetectionTask extends AsyncTask<InputStream, String, Face[]> {
+        // Index indicates detecting in which of the two images.
+        private boolean mSucceed = true;
 
-    void setUiDuringBackgroundTask(String progress) {
-        mProgressDialog.setMessage(progress);
+        @Override
+        protected Face[] doInBackground(InputStream... params) {
+            // Get an instance of face service client to detect faces in image.
+            FaceServiceClient faceServiceClient = MyApplication.getFaceServiceClient();
+            try{
+                publishProgress("Detecting...");
 
-        Log.i("Progress:", progress);
-    }
+                // Start detection.
+                return faceServiceClient.detect(
+                        params[0],  /* Input stream of image to detect */
+                        true,       /* Whether to return face ID */
+                        false,       /* Whether to return face landmarks */
+                        /* Which face attributes to analyze, currently we support:
+                           age,gender,headPose,smile,facialHair */
+                        null);
+            }  catch (Exception e) {
+                mSucceed = false;
+                publishProgress(e.getMessage());
+                Log.e("Exception: ", e.getMessage());
+                return null;
+            }
+        }
 
-    private void setDetectionStatus() {
-        if (mBitmap == null && mTargetBitmap == null) {
-            mProgressDialog.dismiss();
-            Log.i("Info: ", "Detection is done");
-        } else {
-            mProgressDialog.setMessage("Detecting...");
-            Log.i("Info: ", "Detecting...");
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
+            Log.v("", "Request: Detecting in image");
+        }
+
+        @Override
+        protected void onProgressUpdate(String... progress) {
+            progressDialog.setMessage(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Face[] result) {
+            // Show the result on screen when detection is done.
+            setUiAfterDetection(result, mSucceed);
         }
     }
 
-    // The faces in this image are added to the face collection in which to find similar faces.
-    Bitmap mBitmap;
-
-    // The faces in this image are added to the face collection in which to find similar faces.
-    Bitmap mTargetBitmap;
-
-    // The face collection view adapter.
-    //FaceListAdapter mFaceListAdapter;
-
-    // The face collection view adapter.
-    //FaceListAdapter mTargetFaceListAdapter;
-
-    // The face collection view adapter.
-    //SimilarFaceListAdapter mSimilarFaceListAdapter;
-
     // Flag to indicate which task is to be performed.
-    protected static final int REQUEST_ADD_FACE = 0;
+    private static final int REQUEST_SELECT_IMAGE = 0;
 
-    // Flag to indicate which task is to be performed.
-    protected static final int REQUEST_SELECT_IMAGE = 1;
-
-    // The ID of the target face to find similar face.
+    // The IDs of the two faces to be verified.
     private UUID mFaceId;
 
+    // The two images from where we get the two faces to verify.
+    private Bitmap mBitmap;
+
+
     // Progress dialog popped up when communicating with server.
-    ProgressDialog mProgressDialog;
+    ProgressDialog progressDialog;
+
+    String mPersonGroupId;
+    UUID mPersonId;
+
+    // When the activity is created, set all the member variables to initial state.
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_face_reco);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Face Recognition...");
+
+        clearDetectedFaces();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    // select a person for verification
+    void setPersonSelected(int position) {
+
+    }
+
+    // Called when image selection is done. Begin detecting if the image is selected successfully.
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Index indicates which of the two images is selected.
+        if (requestCode != REQUEST_SELECT_IMAGE) {
+            return;
+        }
+
+        if(resultCode == RESULT_OK) {
+            // If image is selected successfully, set the image URI and bitmap.
+            Bitmap bitmap = ImageHelper.loadSizeLimitedBitmapFromUri(
+                    data.getData(), getContentResolver());
+            if (bitmap != null) {
+                clearDetectedFaces();
+
+                // Set the image to detect
+                mBitmap = bitmap;
+                mFaceId = null;
+
+                // Add verification log.
+                Log.v("", "Image"  + ": " + data.getData() + " resized to " + bitmap.getWidth()
+                        + "x" + bitmap.getHeight());
+
+                // Start detecting in image.
+                detect(bitmap);
+            }
+        }
+    }
+
+    // Clear the detected faces indicated by index.
+    private void clearDetectedFaces() {
+    }
+
+    // Called when the "Select Image" button is clicked in face face verification.
+    public void selectImage() {
+        Intent intent = new Intent(this, TakePictureActivity.class);
+        startActivityForResult(intent, REQUEST_SELECT_IMAGE);
+    }
+
+    // Called when the "Verify" button is clicked.
+    public void verify() {
+        new VerificationTask(mFaceId, mPersonGroupId, mPersonId).execute();
+    }
+
+
+
+
+    // Show the result on screen when verification is done.
+    private void setUiAfterVerification(VerifyResult result) {
+        // Verification is done, hide the progress dialog.
+        progressDialog.dismiss();
+
+
+        // Show verification result.
+        if (result != null) {
+            DecimalFormat formatter = new DecimalFormat("#0.00");
+            String verificationResult = (result.isIdentical ? "The same person": "Different persons")
+                    + ". The confidence is " + formatter.format(result.confidence);
+            Log.i("Info", verificationResult);
+        }
+    }
+
+    // Show the result on screen when detection in image that indicated by index is done.
+    private void setUiAfterDetection(Face[] result,boolean succeed) {
+
+        if (succeed) {
+            Log.v("Response:", " Success. Detected "
+                    + result.length + " face(s) in image");
+
+            Log.v("", result.length + " face" + (result.length != 1 ? "s": "")  + " detected");
+
+            mBitmap = null;
+        }
+
+        if (result != null && result.length == 0) {
+            Log.i("Info", "No face detected!");
+        }
+
+        progressDialog.dismiss();
+
+    }
+
+    // Start detecting in image specified by index.
+    private void detect(Bitmap bitmap) {
+        // Put the image into an input stream for detection.
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
+
+        // Start a background task to detect faces in the image.
+        new DetectionTask().execute(inputStream);
+
+        // Set the status to show that detection starts.
+        Log.v("", "Detecting...");
+    }
+
 }

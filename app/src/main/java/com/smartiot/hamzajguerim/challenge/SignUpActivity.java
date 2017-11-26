@@ -25,18 +25,17 @@ public class SignUpActivity extends AppCompatActivity {
         btnAddFace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 dispatchTakePictureIntent();
             }
         });
     }
 
+    // Flag to indicate which task is to be performed.
+    private static final int REQUEST_SELECT_IMAGE = 0;
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        Intent i = new Intent(SignUpActivity.this, TakePictureActivity.class);
 
-        }
+        startActivityForResult(i, REQUEST_SELECT_IMAGE);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
